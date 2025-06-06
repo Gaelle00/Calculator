@@ -41,12 +41,21 @@ function resizeFont() {
 
 function getInput(input) {
     let = currentInput = display.textContent;
-    if (currentInput.length < 35){
-      if (currentInput.length == 0 && "+-×/".includes(input)) {
+    const operators = ["+","-","×","/"];
+    let maxOpIndex = Math.max(...operators.map(op => currentInput.lastIndexOf(op))) // get the last postition of an operator
+    
+    if (currentInput.length < 35){ //limit input
+      if (currentInput.length == 0 && "+-×/".includes(input)) { // if operator is entered first
         display.textContent = "0" + input;
-      } else if ("+-×/".includes(input) && "+-×/".includes(currentInput[currentInput.length - 1])) {
+      } else if (
+        ("+-×/".includes(input) && "+-×/".includes(currentInput[currentInput.length - 1])) //if operators buttons are pressed in a row
+      || (input === "." && currentInput[currentInput.length - 1] === ".") // two decimal points in a row.
+    ){
         backSpace();
         display.textContent += input;
+      } else if (input === "." && maxOpIndex < currentInput.lastIndexOf(".")){
+        //if decimalpoint button is pressed multiple times in same operand
+        return
       } else {
         display.textContent += input;
       }
@@ -118,6 +127,7 @@ function orchestrate() {
     const result = operate();
     displayResult(result);
   });
+  
 }
 
 orchestrate();
