@@ -1,12 +1,13 @@
 const display = document.querySelector(".display p");
-const displayContainer = document.querySelector(".display")
+const displayContainer = document.querySelector(".display");
+const backSpaceButton = document.querySelector(".delete");
 
 let currentFontSize = 100;
 
 function resizeFont() {
   const maxFontSize = 100;
   const minFontSize = 20;
-  let fontSize = currentFontSize;;
+  let fontSize = currentFontSize;
   display.style.fontSize = fontSize + "px";
 
   while (
@@ -38,45 +39,55 @@ function resizeFont() {
   currentFontSize = fontSize;
 }
 
-
 function getInput(input) {
-    let = currentInput = display.textContent;
-    const operators = ["+","-","×","/"];
-    let maxOpIndex = Math.max(...operators.map(op => currentInput.lastIndexOf(op))) // get the last postition of an operator
-    
-    if (currentInput.length < 35){ //limit input
-      if (currentInput.length == 0 && "+-×/".includes(input)) { // if operator is entered first
-        display.textContent = "0" + input;
-      } else if (
-        ("+-×/".includes(input) && "+-×/".includes(currentInput[currentInput.length - 1])) //if operators buttons are pressed in a row
-      || (input === "." && currentInput[currentInput.length - 1] === ".") // two decimal points in a row.
-    ){
-        backSpace();
-        display.textContent += input;
-      } else if (input === "." && maxOpIndex < currentInput.lastIndexOf(".")){
-        //if decimalpoint button is pressed multiple times in same operand
-        return
-      } else {
-        display.textContent += input;
-      }
+  let currentInput = display.textContent;
+  const operators = ["+", "-", "×", "/"];
+  let maxOpIndex = Math.max(
+    ...operators.map((op) => currentInput.lastIndexOf(op))
+  ); // get the last postition of an operator
+  if (backSpaceButton.classList.contains("deactivate")) {//clear display before entering new input
+    clearDisplay();
+  }
+
+  if (currentInput.length < 35) {
+    //limit input
+    if (currentInput.length == 0 && "+-×/".includes(input)) {
+      // if operator is entered first
+      display.textContent = "0" + input;
+    } else if (
+      ("+-×/".includes(input) &&
+        "+-×/".includes(currentInput[currentInput.length - 1])) || //if operators buttons are pressed in a row
+      (input === "." && currentInput[currentInput.length - 1] === ".") // two decimal points in a row.
+    ) {
+      backSpace();
+      display.textContent += input;
+    } else if (input === "." && maxOpIndex < currentInput.lastIndexOf(".")) {
+      //if decimalpoint button is pressed multiple times in same operand
+      return;
+    } else {
+      display.textContent += input;
     }
+  }
   resizeFont();
- 
 }
 
 function clearDisplay() {
   display.textContent = "";
+  if (backSpaceButton.classList.contains("deactivate")) {
+    actDeactBackSpace();
+    backSpaceButton.addEventListener("click", backSpace);
+  }
 }
 
 function backSpace() {
   if (display.textContent.length > 0) {
-    displayedText = display.textContent.slice(0, -1);
+    let displayedText = display.textContent.slice(0, -1);
     display.textContent = displayedText;
     resizeFont();
   }
 }
 function operate() {
-  displayedText = display.textContent;
+  let displayedText = display.textContent;
   const inputList = displayedText.split(/([+\-×/])/);
   let result = parseFloat(inputList[0]);
 
@@ -101,8 +112,16 @@ function operate() {
 }
 
 function displayResult(result) {
-  display.textContent = result;
+  display.textContent = parseFloat(result.toFixed(6));
   resizeFont();
+  if (!backSpaceButton.classList.contains("deactivate")) {
+    actDeactBackSpace();
+  }
+  backSpaceButton.removeEventListener("click", backSpace);
+}
+
+function actDeactBackSpace() {
+  backSpaceButton.classList.toggle("deactivate");
 }
 
 function orchestrate() {
@@ -110,7 +129,6 @@ function orchestrate() {
     ".numbers, .signs, .decimalpoint"
   );
   const clearButton = document.querySelector(".clear");
-  const backSpaceButton = document.querySelector(".delete");
   const equalSign = document.querySelector(".equal");
 
   for (let btn of numbersSignsButtons) {
@@ -127,7 +145,6 @@ function orchestrate() {
     const result = operate();
     displayResult(result);
   });
-  
 }
 
 orchestrate();
